@@ -8,7 +8,7 @@ interface Migration {
 }
 
 interface Migrations {
-  RollBack: Migration[];
+  RollBackward: Migration[];
   RollForward: Migration[];
 }
 
@@ -45,7 +45,7 @@ const createConfig = (defaultVersion: number): ClientConfig & { version?: number
 
 const getMigrationFiles = (): Migrations => {
   const files = readdirSync(path.resolve(__dirname, "../db_migrations"));
-  const RollBack: Migration[] = files
+  const RollBackward: Migration[] = files
     .map(file => {
       const numbers = file.split(".")[0];
       const number1 = Number.parseInt(numbers.split("-")[0]);
@@ -72,7 +72,7 @@ const getMigrationFiles = (): Migrations => {
     })
     .filter(item => item !== undefined);
   return {
-    RollBack,
+    RollBackward,
     RollForward
   };
 };

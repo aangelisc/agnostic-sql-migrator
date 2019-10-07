@@ -78,6 +78,31 @@ const getMigrationFiles = (): Migrations => {
   };
 };
 
+const migrateDb = async (client: Client, version: number, migrations: Migrations) => {
+  const exists = client.query(
+    "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = 'version') as value;"
+  );
+  if (!exists) {
+    throw Error("No version found");
+  }
+  const currVersionQuery = await client.query("SELECT value FROM version");
+  let currentVersion = parseInt(currVersionQuery.rows[0].value);
+  console.log("Current DB Version is: ", currentVersion);
+  if (currentVersion === version) {
+    console.log("DB is already at the specified version - no migrations to carry out.");
+  }
+  if (currentVersion < version) {
+    console.log("Rolling forwards to version: ", version);
+    const rollforward = migrations.RollForward.filter(item => item.Version <= version);
+    await executeMigrations(client, version, rollforward);
+  }
+  if (currentVersion > version) {
+    console.log("Rolling backwards to version: ", version);
+    const rollbackward = migrations.RollBackward.filter(item => item.Version <= version);
+    await executeMigrations(client, version, rollbackward);
+  }
+};
+
 const executeMigrations = async (
   client: Client,
   version: number,
@@ -111,6 +136,7 @@ const entrypoint = async () => {
     migrationFiles.RollForward[migrationFiles.RollForward.length - 1].Version
   );
   const client = new Client(config);
+  await migrateDb(client, config.version, migrationFiles);
 };
 
 entrypoint().catch(err => console.log(err));

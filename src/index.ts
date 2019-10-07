@@ -57,7 +57,8 @@ const getMigrationFiles = (): Migrations => {
         };
       }
     })
-    .filter(item => item !== undefined);
+    .filter(item => item !== undefined)
+    .reverse();
   const RollForward: Migration[] = files
     .map(file => {
       const numbers = file.split(".")[0];

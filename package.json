@@ -1,0 +1,17 @@
+{
+  "name": "PGMigrator",
+  "version": "0.0.1",
+  "description": "Migrator tool for Postgres Databases",
+  "main": "index.ts",
+  "author": "aangelisc <andreas.christou@telefonica.com>",
+  "license": "MIT",
+  "private": false,
+  "devDependencies": {
+    "@types/node": "^12.7.11",
+    "typescript": "^3.6.3"
+  },
+  "dependencies": {
+    "@types/pg": "^7.11.2",
+    "pg": "^7.12.1"
+  }
+}

@@ -1,0 +1,15 @@
+{
+  "compilerOptions": {
+    "preserveConstEnums": true,
+    "target": "es2015",
+    "lib": [
+      "dom",
+      "dom.iterable",
+      "esnext"
+    ],
+    "module": "commonjs",
+    "outDir": "dist",
+    "sourceMap": true
+  },
+  "exclude": ["node_modules", "src/tests", "lib", "scripts"]
+}

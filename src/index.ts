@@ -76,3 +76,13 @@ const getMigrationFiles = (): Migrations => {
     RollForward
   };
 };
+
+const entrypoint = async () => {
+  const migrationFiles = getMigrationFiles();
+  const config = createConfig(
+    migrationFiles.RollForward[migrationFiles.RollForward.length - 1].Version
+  );
+  const client = new Client(config);
+};
+
+entrypoint().catch(err => console.log(err));

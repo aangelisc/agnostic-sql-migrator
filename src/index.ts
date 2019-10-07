@@ -1,5 +1,5 @@
 import { Client, ClientConfig } from "pg";
-import { readdirSync } from "fs";
+import { readdirSync, readFileSync } from "fs";
 import * as path from "path";
 
 interface Migration {
@@ -76,6 +76,33 @@ const getMigrationFiles = (): Migrations => {
     RollBackward,
     RollForward
   };
+};
+
+const executeMigrations = async (
+  client: Client,
+  version: number,
+  migrations: Migration[]
+) => {
+  client.query("BEGIN;");
+  let migrationsSuccessful = true;
+  for (let i = 0; i < migrations.length; i++) {
+    const migration = migrations[i];
+    const query = readFileSync(migration.Path).toString();
+    console.log("Executing migration: ", query);
+    try {
+      client.query(query);
+    } catch (err) {
+      console.log(`Failed to migrate to version ${migration.Version} with error: ${err}`);
+      client.query("ROLLBACK;");
+      migrationsSuccessful = false;
+      break;
+    }
+  }
+  if (migrationsSuccessful) {
+    await client.query("COMMIT");
+    await client.query("UPDATE version SET value=$1", [version]);
+    console.log("Migrations successfully completed. DB is now on version: ", version);
+  }
 };
 
 const entrypoint = async () => {

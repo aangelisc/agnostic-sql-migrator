@@ -46,7 +46,11 @@ const createConfig = (defaultVersion: number): Config => {
 };
 
 const getMigrationFiles = (): Migrations => {
-  const files = readdirSync(path.resolve(__dirname, "../db_migrations"));
+  const migrationsPath = path.resolve(__dirname, "../db_migrations");
+  const files = readdirSync(migrationsPath);
+  if (files.length === 0) {
+    throw new Error("No migrations found - check db_migrations folder");
+  }
   const RollBackward: Migration[] = files
     .map(file => {
       const numbers = file.split(".")[0];
@@ -54,7 +58,7 @@ const getMigrationFiles = (): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 > number2) {
         return {
-          Path: file,
+          Path: path.join(migrationsPath, file),
           Version: number2
         };
       }
@@ -68,7 +72,7 @@ const getMigrationFiles = (): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 < number2) {
         return {
-          Path: file,
+          Path: path.join(migrationsPath, file),
           Version: number2
         };
       }

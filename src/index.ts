@@ -114,17 +114,17 @@ const executeMigrations = async (
   version: number,
   migrations: Migration[]
 ) => {
-  client.query("BEGIN;");
+  await client.query("BEGIN;");
   let migrationsSuccessful = true;
   for (let i = 0; i < migrations.length; i++) {
     const migration = migrations[i];
     const query = readFileSync(migration.Path).toString();
     console.log("Executing migration: ", query);
     try {
-      client.query(query);
+      await client.query(query);
     } catch (err) {
       console.log(`Failed to migrate to version ${migration.Version} with error: ${err}`);
-      client.query("ROLLBACK;");
+      await client.query("ROLLBACK;");
       migrationsSuccessful = false;
       break;
     }

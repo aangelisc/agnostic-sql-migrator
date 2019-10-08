@@ -2,6 +2,8 @@ import { Client, ClientConfig } from "pg";
 import { readdirSync, readFileSync } from "fs";
 import * as path from "path";
 
+export type Config = ClientConfig & { version?: number };
+
 interface Migration {
   Path: string;
   Version: number;
@@ -12,7 +14,7 @@ interface Migrations {
   RollForward: Migration[];
 }
 
-const createConfig = (defaultVersion: number): ClientConfig & { version?: number } => {
+const createConfig = (defaultVersion: number): Config => {
   const args = process.argv.slice(2);
   const argMap = new Map<string, string>();
   args.map(arg => {

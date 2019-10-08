@@ -1,5 +1,6 @@
 import { Client, ClientConfig } from "pg";
 import { readdirSync, readFileSync } from "fs";
+import { Version } from "./version";
 import * as path from "path";
 
 export type Config = ClientConfig & { version?: number };
@@ -85,14 +86,12 @@ const getMigrationFiles = (): Migrations => {
 };
 
 const migrateDb = async (client: Client, version: number, migrations: Migrations) => {
-  const exists = client.query(
-    "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = 'version') as value;"
-  );
-  if (!exists) {
-    throw Error("No version found");
+  const versionExists = await Version.exists(client);
+  if (!versionExists) {
+    console.log("New DB - Creating version information");
+    await Version.create(client);
   }
-  const currVersionQuery = await client.query("SELECT value FROM version");
-  let currentVersion = parseInt(currVersionQuery.rows[0].value);
+  let currentVersion = await Version.get(client);
   console.log("Current DB Version is: ", currentVersion);
   if (currentVersion === version) {
     console.log("DB is already at the specified version - no migrations to carry out.");
@@ -104,7 +103,7 @@ const migrateDb = async (client: Client, version: number, migrations: Migrations
   }
   if (currentVersion > version) {
     console.log("Rolling backwards to version: ", version);
-    const rollbackward = migrations.RollBackward.filter(item => item.Version <= version);
+    const rollbackward = migrations.RollBackward.filter(item => item.Version >= version);
     await executeMigrations(client, version, rollbackward);
   }
 };

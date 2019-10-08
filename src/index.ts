@@ -142,7 +142,9 @@ const entrypoint = async () => {
     migrationFiles.RollForward[migrationFiles.RollForward.length - 1].Version
   );
   const client = new Client(config);
+  await client.connect();
   await migrateDb(client, config.version, migrationFiles);
+  await client.end();
 };
 
 entrypoint().catch(err => console.log(err));

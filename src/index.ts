@@ -30,7 +30,7 @@ const createConfig = (defaultVersion: number): Config => {
     ? Number.parseInt(argMap.get("PG_PORT"))
     : Number.parseInt(process.env.PGPORT) || 5432;
   const database = argMap.get("PG_DB")
-    ? argMap.get("PG_PORT")
+    ? argMap.get("PG_DB")
     : process.env.PGDATABASE || "";
   const version = argMap.get("VERSION")
     ? Number.parseInt(argMap.get("VERSION"))

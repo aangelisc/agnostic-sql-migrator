@@ -11,6 +11,7 @@ This tool requires the Postgres DB configuration information to be provided. Thi
 Command line configuration arguments would be as follows:
 
 ```- PG_USER - the user on the database
+- PG_USER - username
 - PG_PASSWORD - user password
 - PG_HOST - host server location
 - PG_PORT - host server port for connection

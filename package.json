@@ -1,7 +1,7 @@
 {
-  "name": "PGMigrator",
+  "name": "agnostic-migrator",
   "version": "0.0.1",
-  "description": "Migrator tool for Postgres Databases",
+  "description": "Database agnostic migrator tool for SQL databases",
   "main": "index.ts",
   "author": "aangelisc <andreas.christou@telefonica.com>",
   "license": "MIT",

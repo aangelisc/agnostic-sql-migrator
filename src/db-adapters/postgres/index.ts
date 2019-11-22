@@ -1,5 +1,5 @@
 import { Client, QueryResult, QueryResultBase } from "pg";
-import { AdapterClient } from "../../src/index";
+import { AdapterClient } from "../../index";
 
 const createClient = async (config: any): Promise<Client> => {
   const client = new Client(config);

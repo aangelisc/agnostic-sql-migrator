@@ -1,6 +1,7 @@
 import { Client } from "pg";
 import { getMigrationFiles, migrateDb } from "./migrations";
 import { adapters } from "./adapters";
+import { resolve } from "path";
 
 export interface ClientConfig {
   user: string;
@@ -10,7 +11,11 @@ export interface ClientConfig {
   database: string;
 }
 
-export type Config = ClientConfig & { adapter: Adapters; version?: number };
+export type Config = ClientConfig & {
+  adapter: Adapters;
+  migrationsPath: string;
+  version?: number;
+};
 
 export type Adapters = "postgres" | undefined;
 
@@ -46,6 +51,9 @@ export const createConfig = (defaultVersion: number): Config => {
   const version = argMap.get("VERSION")
     ? Number.parseInt(argMap.get("VERSION"))
     : defaultVersion;
+  const migrationsPath = argMap.get("MIGRATIONS_PATH")
+    ? resolve(argMap.get("MIGRATIONS_PATH"))
+    : resolve(process.env.MIGRATIONS_PATH);
   return {
     adapter,
     user,
@@ -54,6 +62,7 @@ export const createConfig = (defaultVersion: number): Config => {
     port,
     database,
     version
+    migrationsPath
   };
 };
 

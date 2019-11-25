@@ -27,7 +27,8 @@ describe("Testing Postgres functionality", () => {
       password: "password",
       host: "localhost",
       port: container.getMappedPort(5432),
-      database: "testdb"
+      database: "testdb",
+      migrationsPath: "./mock_migrations"
     };
     adapter = adapters[config.adapter];
   });

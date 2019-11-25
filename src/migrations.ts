@@ -1,5 +1,5 @@
 import { readdirSync, readFileSync } from "fs";
-import { AdapterClients, AdapterClient } from "./config";
+import { AdapterClients, AdapterClient, Config } from "./config";
 import { Version } from "./version";
 import * as path from "path";
 
@@ -14,9 +14,8 @@ export interface Migrations {
   RollForward: Migration[];
 }
 
-export const getMigrationFiles = (): Migrations => {
-  const migrationsPath = path.resolve(__dirname, "../db_migrations");
-  const files = readdirSync(migrationsPath);
+export const getMigrationFiles = (config: Config): Migrations => {
+  const files = readdirSync(config.migrationsPath);
   if (files.length === 0) {
     throw new Error("No migrations found - check db_migrations folder");
   }
@@ -27,7 +26,7 @@ export const getMigrationFiles = (): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 > number2) {
         return {
-          Path: path.join(migrationsPath, file),
+          Path: path.join(config.migrationsPath, file),
           VersionTo: number2,
           VersionFrom: number1
         };
@@ -42,7 +41,7 @@ export const getMigrationFiles = (): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 < number2) {
         return {
-          Path: path.join(migrationsPath, file),
+          Path: path.join(config.migrationsPath, file),
           VersionTo: number2,
           VersionFrom: number1
         };

@@ -27,7 +27,7 @@ export interface AdapterClient {
   closeConnection: (client: Client) => Promise<void>;
 }
 
-export const createConfig = (defaultVersion: number): Config => {
+export const createConfig = (defaultVersion?: number): Config => {
   const args = process.argv.slice(2);
   const argMap = new Map<string, string>();
   args.map(arg => {
@@ -50,7 +50,9 @@ export const createConfig = (defaultVersion: number): Config => {
     : process.env.DATABASE || "";
   const version = argMap.get("VERSION")
     ? Number.parseInt(argMap.get("VERSION"))
-    : defaultVersion;
+    : defaultVersion
+    ? defaultVersion
+    : undefined;
   const migrationsPath = argMap.get("MIGRATIONS_PATH")
     ? resolve(argMap.get("MIGRATIONS_PATH"))
     : resolve(process.env.MIGRATIONS_PATH);
@@ -61,16 +63,21 @@ export const createConfig = (defaultVersion: number): Config => {
     host,
     port,
     database,
-    version
+    version,
     migrationsPath
   };
 };
 
 export const entrypoint = async () => {
-  const migrationFiles = getMigrationFiles();
-  const config = createConfig(
-    migrationFiles.RollForward[migrationFiles.RollForward.length - 1].VersionTo
-  );
+  let config = createConfig();
+  const migrationFiles = getMigrationFiles(config);
+  if (!config.version) {
+    Object.assign(config, {
+      version:
+        migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
+          .VersionTo
+    });
+  }
   const adapter = adapters[config.adapter];
   const client = await adapter.createClient(config);
   await migrateDb(client, adapter, config.version, migrationFiles);

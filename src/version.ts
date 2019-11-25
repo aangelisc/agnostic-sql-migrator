@@ -15,6 +15,7 @@ export const Version = {
     client: AdapterClients,
     adapter: AdapterClient
   ): Promise<void> => {
+    console.log("New DB - Creating version information");
     await adapter.query(
       client,
       "CREATE TABLE version (value INT);INSERT INTO version(value) VALUES(1);"
@@ -32,6 +33,8 @@ export const Version = {
     adapter: AdapterClient
   ): Promise<number> => {
     const version = await adapter.query(client, "SELECT value FROM version");
-    return Number.parseInt(version.rows[0].value);
+    const currentVersion = Number.parseInt(version.rows[0].value);
+    console.log("Current DB Version is: ", currentVersion);
+    return currentVersion;
   }
 };

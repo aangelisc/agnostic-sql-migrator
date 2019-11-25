@@ -73,11 +73,9 @@ export const migrateDb = async (
 ) => {
   const versionExists = await Version.exists(client, adapter);
   if (!versionExists) {
-    console.log("New DB - Creating version information");
     await Version.create(client, adapter);
   }
   let currentVersion = await Version.get(client, adapter);
-  console.log("Current DB Version is: ", currentVersion);
   if (currentVersion === version) {
     console.log(
       "DB is already at the specified version - no migrations to carry out."

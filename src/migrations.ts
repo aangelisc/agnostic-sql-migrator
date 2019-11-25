@@ -17,7 +17,7 @@ export interface Migrations {
 export const getMigrationFiles = (config: Config): Migrations => {
   const files = readdirSync(config.migrationsPath);
   if (files.length === 0) {
-    throw new Error("No migrations found - check db_migrations folder");
+    throw new Error("No migrations found - check migrations folder");
   }
   const RollBackward: Migration[] = files
     .map(file => {

@@ -1,10 +1,15 @@
 import { Client, QueryResult, QueryResultBase } from "pg";
-import { AdapterClient } from "../../index";
+import { AdapterClient } from "../../config";
 
 const createClient = async (config: any): Promise<Client> => {
-  const client = new Client(config);
-  await client.connect();
-  return client;
+  try {
+    const client = new Client(config);
+    await client.connect();
+    console.log("Successfully connected to Postgres DB");
+    return client;
+  } catch (err) {
+    throw err;
+  }
 };
 
 const query = async (
@@ -16,7 +21,12 @@ const query = async (
 };
 
 const closeConnection = async (client: Client): Promise<void> => {
-  await client.end();
+  try {
+    await client.end();
+    console.log("Connection to Postgres DB closed");
+  } catch (err) {
+    throw err;
+  }
 };
 
 export const adapterClient: AdapterClient = {

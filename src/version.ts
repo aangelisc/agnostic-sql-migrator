@@ -1,4 +1,4 @@
-import { AdapterClients, AdapterClient } from ".";
+import { AdapterClients, AdapterClient } from "./config";
 
 export const Version = {
   exists: async (

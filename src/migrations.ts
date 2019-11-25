@@ -85,7 +85,6 @@ export const migrateDb = async (
     const rollforward = migrations.RollForward.filter(
       item => item.VersionFrom <= version && item.VersionTo >= currentVersion
     );
-    console.log(rollforward);
     await executeMigrations(client, adapter, version, rollforward);
   }
   if (currentVersion > version) {
@@ -93,7 +92,6 @@ export const migrateDb = async (
     const rollbackward = migrations.RollBackward.filter(
       item => item.VersionFrom >= version && item.VersionTo <= currentVersion
     );
-    console.log({ rollbackward });
     await executeMigrations(client, adapter, version, rollbackward);
   }
 };

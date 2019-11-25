@@ -7,11 +7,34 @@
   "license": "MIT",
   "private": false,
   "devDependencies": {
+    "@types/jest": "^24.0.23",
     "@types/node": "^12.7.11",
+    "jest": "^24.9.0",
+    "testcontainers": "^2.1.0",
+    "ts-jest": "^24.2.0",
     "typescript": "^3.6.3"
   },
   "dependencies": {
     "@types/pg": "^7.11.2",
     "pg": "^7.12.1"
+  },
+  "scripts": {
+    "test": "jest --runInBand --verbose"
+  },
+  "jest": {
+    "preset": "ts-jest",
+    "testEnvironment": "node",
+    "transform": {
+      "^.+\\.tsx?$": "ts-jest"
+    },
+    "testRegex": "((\\.|/)(test|spec))\\.(jsx?|tsx?)$",
+    "moduleFileExtensions": [
+      "ts",
+      "tsx",
+      "js",
+      "jsx",
+      "json",
+      "node"
+    ]
   }
 }

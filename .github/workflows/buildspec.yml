@@ -15,4 +15,4 @@ jobs:
     - name: Install packages
       run: npm install
     - name: Test
-      run: ls
+      run: npm run test

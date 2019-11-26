@@ -12,7 +12,7 @@ jobs:
 
     steps:
     - uses: actions/checkout@v1
+    - name: Install packages
+      run: npm install
     - name: Test
-      run: |
-        yarn install
-        yarn test
+      run: npm run test

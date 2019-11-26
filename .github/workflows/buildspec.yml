@@ -15,4 +15,7 @@ jobs:
     - name: Install packages
       run: npm install
     - name: Test
-      run: npm run test
+      run:
+          ls
+          cat package.json 
+          npm run test

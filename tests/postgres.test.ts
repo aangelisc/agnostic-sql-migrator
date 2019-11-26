@@ -3,8 +3,6 @@ import { adapters } from "../src/adapters";
 import { Version } from "../src/version";
 import { Config, AdapterClient } from "../src/config";
 import { getMigrationFiles, migrateDb } from "../src/migrations";
-import { mkdirSync, rmdirSync } from "fs";
-import { join } from "path";
 
 let config: Config;
 let container: Containers.StartedTestContainer;

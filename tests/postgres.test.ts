@@ -4,11 +4,18 @@ import { Version } from "../src/version";
 import { Config, AdapterClient } from "../src/config";
 import { getMigrationFiles, migrateDb } from "../src/migrations";
 
-let config: Config;
+let config: Config = {
+  adapter: "postgres",
+  user: "postgres",
+  password: "password",
+  host: process.env.HOSTNAME ? process.env.HOSTNAME : "localhost",
+  port: 0,
+  database: "testdb",
+  migrationsPath: `${__dirname}/mock_migrations`
+};
 let container: Containers.StartedTestContainer;
-let adapter: AdapterClient;
+let adapter: AdapterClient = adapters[config.adapter];
 const logSpy = jest.spyOn(console, "log");
-
 describe("Testing Postgres functionality", () => {
   beforeAll(async () => {
     const dbConfig = {
@@ -22,17 +29,7 @@ describe("Testing Postgres functionality", () => {
       .withEnv("POSTGRES_USER", dbConfig.POSTGRES_USER)
       .withEnv("POSTGRES_DB", "testdb")
       .start();
-    config = {
-      adapter: "postgres",
-      user: "postgres",
-      password: "password",
-      host: "localhost",
-      port: container.getMappedPort(5432),
-      database: "testdb",
-      migrationsPath: `${__dirname}/mock_migrations`
-    };
-    console.log(config);
-    adapter = adapters[config.adapter];
+    Object.assign(config, { port: container.getMappedPort(5432) });
   });
   afterAll(async () => {
     await container.stop();

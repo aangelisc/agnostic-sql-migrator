@@ -4,18 +4,11 @@ import { Version } from "../src/version";
 import { Config, AdapterClient } from "../src/config";
 import { getMigrationFiles, migrateDb } from "../src/migrations";
 
-let config: Config = {
-  adapter: "postgres",
-  user: "postgres",
-  password: "password",
-  host: process.env.HOSTNAME ? process.env.HOSTNAME : "localhost",
-  port: 0,
-  database: "testdb",
-  migrationsPath: `${__dirname}/mock_migrations`
-};
+let config: Config;
 let container: Containers.StartedTestContainer;
-let adapter: AdapterClient = adapters[config.adapter];
+let adapter: AdapterClient;
 const logSpy = jest.spyOn(console, "log");
+jest.setTimeout(100000);
 describe("Testing Postgres functionality", () => {
   beforeAll(async () => {
     const dbConfig = {
@@ -29,12 +22,20 @@ describe("Testing Postgres functionality", () => {
       .withEnv("POSTGRES_USER", dbConfig.POSTGRES_USER)
       .withEnv("POSTGRES_DB", "testdb")
       .start();
-    Object.assign(config, { port: container.getMappedPort(5432) });
+    config = {
+      adapter: "postgres",
+      user: "postgres",
+      password: "password",
+      host: container.getContainerIpAddress(),
+      port: container.getMappedPort(5432),
+      database: "testdb",
+      migrationsPath: `${__dirname}/mock_migrations`
+    };
+    adapter = adapters[config.adapter];
   });
   afterAll(async () => {
     await container.stop();
   });
-
   it("Will successfully create and close connection to the Postgres db", async () => {
     const client = await adapter.createClient(config);
     expect(logSpy).toHaveBeenCalledWith(

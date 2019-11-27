@@ -31,6 +31,7 @@ describe("Testing Postgres functionality", () => {
       database: "testdb",
       migrationsPath: `${__dirname}/mock_migrations`
     };
+    console.log(config);
     adapter = adapters[config.adapter];
   });
   afterAll(async () => {

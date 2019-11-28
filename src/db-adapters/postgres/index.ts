@@ -29,7 +29,7 @@ const closeConnection = async (client: Client): Promise<void> => {
   }
 };
 
-export const adapterClient: AdapterClient = {
+export const postgres: AdapterClient = {
   createClient,
   query,
   closeConnection

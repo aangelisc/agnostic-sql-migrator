@@ -2,6 +2,8 @@ import { Client } from "pg";
 import { getMigrationFiles, migrateDb } from "./migrations";
 import { adapters } from "./adapters";
 import { resolve } from "path";
+import { Connection } from "mysql2/promise";
+import { ConnectionOptions } from "mysql";
 
 export interface ClientConfig {
   user: string;
@@ -17,14 +19,16 @@ export type Config = ClientConfig & {
   version?: number;
 };
 
-export type Adapters = "postgres" | undefined;
+export type Adapters = "postgres" | "mysql" | undefined;
 
-export type AdapterClients = Client;
+export type AdapterClients = Client | Connection;
 
 export interface AdapterClient {
-  createClient: (config: ClientConfig) => Promise<AdapterClients>;
+  createClient: (
+    config: ClientConfig | ConnectionOptions
+  ) => Promise<AdapterClients>;
   query: (client: AdapterClients, query: string) => any;
-  closeConnection: (client: Client) => Promise<void>;
+  closeConnection: (client: Client | Connection) => Promise<void>;
 }
 
 export const createConfig = (defaultVersion?: number): Config => {

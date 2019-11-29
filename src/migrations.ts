@@ -15,7 +15,7 @@ export interface Migrations {
 }
 
 export const getMigrationFiles = (config: Config): Migrations => {
-  const files = readdirSync(config.migrationsPath);
+  const files = readdirSync(config.MigrationConfig.migrationsPath);
   if (files.length === 0) {
     throw new Error("No migrations found - check migrations folder");
   }
@@ -26,7 +26,7 @@ export const getMigrationFiles = (config: Config): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 > number2) {
         return {
-          Path: path.join(config.migrationsPath, file),
+          Path: path.join(config.MigrationConfig.migrationsPath, file),
           VersionTo: number2,
           VersionFrom: number1
         };
@@ -41,7 +41,7 @@ export const getMigrationFiles = (config: Config): Migrations => {
       const number2 = Number.parseInt(numbers.split("-")[1]);
       if (number1 < number2) {
         return {
-          Path: path.join(config.migrationsPath, file),
+          Path: path.join(config.MigrationConfig.migrationsPath, file),
           VersionTo: number2,
           VersionFrom: number1
         };

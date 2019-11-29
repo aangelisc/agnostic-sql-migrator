@@ -23,21 +23,25 @@ describe("Testing Postgres functionality", () => {
       .withEnv("POSTGRES_DB", "testdb")
       .start();
     config = {
-      adapter: "postgres",
-      user: "postgres",
-      password: "password",
-      host: container.getContainerIpAddress(),
-      port: container.getMappedPort(5432),
-      database: "testdb",
-      migrationsPath: `${__dirname}/mock_migrations`
+      ClientConfig: {
+        user: "postgres",
+        password: "password",
+        host: container.getContainerIpAddress(),
+        port: container.getMappedPort(5432),
+        database: "testdb"
+      },
+      MigrationConfig: {
+        adapter: "postgres",
+        migrationsPath: `${__dirname}/mock_psql_migrations`
+      }
     };
-    adapter = adapters[config.adapter];
+    adapter = adapters[config.MigrationConfig.adapter];
   });
   afterAll(async () => {
     await container.stop();
   });
   it("Will successfully create and close connection to the Postgres db", async () => {
-    const client = await adapter.createClient(config);
+    const client = await adapter.createClient(config.ClientConfig);
     expect(logSpy).toHaveBeenCalledWith(
       "Successfully connected to Postgres DB"
     );
@@ -47,14 +51,14 @@ describe("Testing Postgres functionality", () => {
   });
 
   it("Will check if the version exists - on initial creation expect this to be false", async () => {
-    const client = await adapter.createClient(config);
+    const client = await adapter.createClient(config.ClientConfig);
     const exists = await Version.exists(client, adapter);
     expect(exists).toBeFalsy();
     await adapter.closeConnection(client);
   });
 
   it("Will initialise db version at 1 if no version table exists", async () => {
-    const client = await adapter.createClient(config);
+    const client = await adapter.createClient(config.ClientConfig);
     const exists = await Version.exists(client, adapter);
     expect(exists).toBeFalsy();
     await Version.create(client, adapter);
@@ -72,11 +76,16 @@ describe("Testing Postgres functionality", () => {
     const latest =
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
-    Object.assign(config, {
+    Object.assign(config.MigrationConfig, {
       version: latest
     });
-    const client = await adapter.createClient(config);
-    await migrateDb(client, adapter, config.version, migrationFiles);
+    const client = await adapter.createClient(config.ClientConfig);
+    await migrateDb(
+      client,
+      adapter,
+      config.MigrationConfig.version,
+      migrationFiles
+    );
     expect(logSpy).toHaveBeenCalledWith(
       "Rolling forwards to version: ",
       latest
@@ -91,11 +100,16 @@ describe("Testing Postgres functionality", () => {
     const latest =
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
-    Object.assign(config, {
+    Object.assign(config.MigrationConfig, {
       version: latest
     });
-    const client = await adapter.createClient(config);
-    await migrateDb(client, adapter, config.version, migrationFiles);
+    const client = await adapter.createClient(config.ClientConfig);
+    await migrateDb(
+      client,
+      adapter,
+      config.MigrationConfig.version,
+      migrationFiles
+    );
     expect(logSpy).toHaveBeenCalledWith(
       "DB is already at the specified version - no migrations to carry out."
     );
@@ -106,11 +120,16 @@ describe("Testing Postgres functionality", () => {
 
   it("Will rollback the db to a specified version", async () => {
     const migrationFiles = getMigrationFiles(config);
-    Object.assign(config, {
+    Object.assign(config.MigrationConfig, {
       version: 1
     });
-    const client = await adapter.createClient(config);
-    await migrateDb(client, adapter, config.version, migrationFiles);
+    const client = await adapter.createClient(config.ClientConfig);
+    await migrateDb(
+      client,
+      adapter,
+      config.MigrationConfig.version,
+      migrationFiles
+    );
     expect(logSpy).toHaveBeenCalledWith("Rolling backwards to version: ", 1);
     const version = await Version.get(client, adapter);
     expect(version).toEqual(1);
@@ -119,9 +138,14 @@ describe("Testing Postgres functionality", () => {
 
   it("Will initialise db and carry out migration to a specified version", async () => {
     const migrationFiles = getMigrationFiles(config);
-    Object.assign(config, { version: 3 });
-    const client = await adapter.createClient(config);
-    await migrateDb(client, adapter, config.version, migrationFiles);
+    Object.assign(config.MigrationConfig, { version: 3 });
+    const client = await adapter.createClient(config.ClientConfig);
+    await migrateDb(
+      client,
+      adapter,
+      config.MigrationConfig.version,
+      migrationFiles
+    );
     expect(logSpy).toHaveBeenCalledWith("Rolling forwards to version: ", 3);
     const version = await Version.get(client, adapter);
     expect(version).toEqual(3);

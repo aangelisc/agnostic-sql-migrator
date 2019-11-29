@@ -2,6 +2,7 @@ import { Client } from "pg";
 import { getMigrationFiles, migrateDb } from "./migrations";
 import { adapters } from "./adapters";
 import { resolve } from "path";
+import { Connection } from "mysql2/promise";
 
 export interface ClientConfig {
   user: string;
@@ -11,20 +12,25 @@ export interface ClientConfig {
   database: string;
 }
 
-export type Config = ClientConfig & {
+export interface MigrationConfig {
   adapter: Adapters;
   migrationsPath: string;
   version?: number;
-};
+}
 
-export type Adapters = "postgres" | undefined;
+export interface Config {
+  ClientConfig: ClientConfig;
+  MigrationConfig: MigrationConfig;
+}
 
-export type AdapterClients = Client;
+export type Adapters = "postgres" | "mysql" | undefined;
+
+export type AdapterClients = Client | Connection;
 
 export interface AdapterClient {
   createClient: (config: ClientConfig) => Promise<AdapterClients>;
   query: (client: AdapterClients, query: string) => any;
-  closeConnection: (client: Client) => Promise<void>;
+  closeConnection: (client: Client | Connection) => Promise<void>;
 }
 
 export const createConfig = (defaultVersion?: number): Config => {
@@ -57,29 +63,28 @@ export const createConfig = (defaultVersion?: number): Config => {
     ? resolve(argMap.get("MIGRATIONS_PATH"))
     : resolve(process.env.MIGRATIONS_PATH);
   return {
-    adapter,
-    user,
-    password,
-    host,
-    port,
-    database,
-    version,
-    migrationsPath
+    ClientConfig: { user, password, host, port, database },
+    MigrationConfig: { adapter, version, migrationsPath }
   };
 };
 
 export const entrypoint = async () => {
   let config = createConfig();
   const migrationFiles = getMigrationFiles(config);
-  if (!config.version) {
-    Object.assign(config, {
+  if (!config.MigrationConfig.version) {
+    Object.assign(config.MigrationConfig, {
       version:
         migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
           .VersionTo
     });
   }
-  const adapter = adapters[config.adapter];
-  const client = await adapter.createClient(config);
-  await migrateDb(client, adapter, config.version, migrationFiles);
+  const adapter = adapters[config.MigrationConfig.adapter];
+  const client = await adapter.createClient(config.ClientConfig);
+  await migrateDb(
+    client,
+    adapter,
+    config.MigrationConfig.version,
+    migrationFiles
+  );
   await adapter.closeConnection(client);
 };

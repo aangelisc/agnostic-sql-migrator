@@ -1,4 +1,6 @@
-import { adapterClient } from "./db-adapters/postgres";
+import { postgres } from "./db-adapters/postgres";
+import { mysql } from "./db-adapters/mysql";
 export const adapters = {
-  postgres: adapterClient
+  postgres,
+  mysql
 };

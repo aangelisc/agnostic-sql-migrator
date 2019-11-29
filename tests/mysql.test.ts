@@ -9,30 +9,32 @@ let container: Containers.StartedTestContainer;
 let adapter: AdapterClient;
 const logSpy = jest.spyOn(console, "log");
 jest.setTimeout(100000);
-describe("Testing Postgres functionality", () => {
+describe("Testing MySQL functionality", () => {
   beforeAll(async () => {
     const dbConfig = {
-      POSTGRES_PASSWORD: "password",
-      POSTGRES_DB: "testdb",
-      POSTGRES_USER: "postgres"
+      MYSQL_PASSWORD: "password",
+      MYSQL_DB: "testdb",
+      MYSQL_USER: "ms"
     };
-    container = await new Containers.GenericContainer("postgres")
-      .withExposedPorts(5432)
-      .withEnv("POSTGRES_PASSWORD", dbConfig.POSTGRES_PASSWORD)
-      .withEnv("POSTGRES_USER", dbConfig.POSTGRES_USER)
-      .withEnv("POSTGRES_DB", "testdb")
+    container = await new Containers.GenericContainer("mysql")
+      .withExposedPorts(3306)
+      .withEnv("MYSQL_ROOT_PASSWORD", "rootpw")
+      .withEnv("MYSQL_PASSWORD", dbConfig.MYSQL_PASSWORD)
+      .withEnv("MYSQL_USER", dbConfig.MYSQL_USER)
+      .withEnv("MYSQL_DATABASE", "testdb")
+      .withEnv("MYSQL_ROOT_HOST", "%")
       .start();
     config = {
       ClientConfig: {
-        user: "postgres",
+        user: "ms",
         password: "password",
         host: container.getContainerIpAddress(),
-        port: container.getMappedPort(5432),
+        port: container.getMappedPort(3306),
         database: "testdb"
       },
       MigrationConfig: {
-        adapter: "postgres",
-        migrationsPath: `${__dirname}/mock_psql_migrations`
+        adapter: "mysql",
+        migrationsPath: `${__dirname}/mock_mysql_migrations`
       }
     };
     adapter = adapters[config.MigrationConfig.adapter];
@@ -40,13 +42,11 @@ describe("Testing Postgres functionality", () => {
   afterAll(async () => {
     await container.stop();
   });
-  it("Will successfully create and close connection to the Postgres db", async () => {
+  it("Will successfully create and close connection to the MySQL db", async () => {
     const client = await adapter.createClient(config.ClientConfig);
-    expect(logSpy).toHaveBeenCalledWith(
-      "Successfully connected to Postgres DB"
-    );
+    expect(logSpy).toHaveBeenCalledWith("Successfully connected to MySQL DB");
     await adapter.closeConnection(client);
-    expect(logSpy).toHaveBeenCalledWith("Connection to Postgres DB closed");
+    expect(logSpy).toHaveBeenCalledWith("Connection to MySQL DB closed");
     expect(logSpy).toHaveBeenCalledTimes(2);
   });
 

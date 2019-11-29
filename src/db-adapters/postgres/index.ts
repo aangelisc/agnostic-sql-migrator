@@ -1,7 +1,7 @@
 import { Client, QueryResult, QueryResultBase } from "pg";
-import { AdapterClient } from "../../config";
+import { AdapterClient, ClientConfig } from "../../config";
 
-const createClient = async (config: any): Promise<Client> => {
+const createClient = async (config: ClientConfig): Promise<Client> => {
   try {
     const client = new Client(config);
     await client.connect();
@@ -12,12 +12,9 @@ const createClient = async (config: any): Promise<Client> => {
   }
 };
 
-const query = async (
-  client: Client,
-  query: string
-): Promise<QueryResultBase & QueryResult> => {
+const query = async (client: Client, query: string): Promise<any> => {
   const res = await client.query(query);
-  return res;
+  return res.rows;
 };
 
 const closeConnection = async (client: Client): Promise<void> => {

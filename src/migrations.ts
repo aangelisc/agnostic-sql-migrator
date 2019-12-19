@@ -33,7 +33,7 @@ export const getMigrationFiles = (config: Config): Migrations => {
       }
     })
     .filter(item => item !== undefined)
-    .reverse();
+    .sort((a, b) => (a.VersionTo > b.VersionTo ? -1 : 1));
   const RollForward: Migration[] = files
     .map(file => {
       const numbers = file.split(".")[0];
@@ -47,7 +47,8 @@ export const getMigrationFiles = (config: Config): Migrations => {
         };
       }
     })
-    .filter(item => item !== undefined);
+    .filter(item => item !== undefined)
+    .sort((a, b) => (a.VersionTo > b.VersionTo ? 1 : -1));
   return {
     RollBackward,
     RollForward

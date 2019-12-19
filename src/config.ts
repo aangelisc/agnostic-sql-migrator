@@ -68,7 +68,7 @@ export const createConfig = (defaultVersion?: number): Config => {
   };
 };
 
-export const entrypoint = async () => {
+export const entrypoint = async (userConfig?: Partial<Config>) => {
   let config = createConfig();
   const migrationFiles = getMigrationFiles(config);
   if (!config.MigrationConfig.version) {
@@ -78,12 +78,13 @@ export const entrypoint = async () => {
           .VersionTo
     });
   }
-  const adapter = adapters[config.MigrationConfig.adapter];
-  const client = await adapter.createClient(config.ClientConfig);
+  const finalConfig = { ...config, ...userConfig };
+  const adapter = adapters[finalConfig.MigrationConfig.adapter];
+  const client = await adapter.createClient(finalConfig.ClientConfig);
   await migrateDb(
     client,
     adapter,
-    config.MigrationConfig.version,
+    finalConfig.MigrationConfig.version,
     migrationFiles
   );
   await adapter.closeConnection(client);

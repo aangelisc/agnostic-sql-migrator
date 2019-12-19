@@ -42,18 +42,30 @@ export const createConfig = (defaultVersion?: number): Config => {
   });
   const adapter: Adapters = argMap.get("ADAPTER")
     ? (argMap.get("ADAPTER").toLowerCase() as Adapters)
-    : (process.env.ADAPTER.toLowerCase() as Adapters) || undefined;
+    : process.env.ADAPTER
+    ? (process.env.ADAPTER.toLowerCase() as Adapters)
+    : undefined;
   const user = argMap.get("USER") ? argMap.get("USER") : process.env.USER || "";
   const password = argMap.get("PASSWORD")
     ? argMap.get("PASSWORD")
-    : process.env.PASSWORD || "";
-  const host = argMap.get("HOST") ? argMap.get("HOST") : process.env.HOST || "";
+    : process.env.PASSWORD
+    ? process.env.PASSWORD
+    : undefined;
+  const host = argMap.get("HOST")
+    ? argMap.get("HOST")
+    : process.env.HOST
+    ? process.env.HOST
+    : undefined;
   const port = argMap.get("PORT")
     ? Number.parseInt(argMap.get("PORT"))
-    : Number.parseInt(process.env.PORT) || 5432;
+    : process.env.PORT
+    ? Number.parseInt(process.env.PORT)
+    : undefined;
   const database = argMap.get("DATABASE")
     ? argMap.get("DATABASE")
-    : process.env.DATABASE || "";
+    : process.env.DATABASE
+    ? process.env.DATABASE
+    : undefined;
   const version = argMap.get("VERSION")
     ? Number.parseInt(argMap.get("VERSION"))
     : defaultVersion
@@ -61,7 +73,9 @@ export const createConfig = (defaultVersion?: number): Config => {
     : undefined;
   const migrationsPath = argMap.get("MIGRATIONS_PATH")
     ? resolve(argMap.get("MIGRATIONS_PATH"))
-    : resolve(process.env.MIGRATIONS_PATH);
+    : process.env.MIGRATIONS_PATH
+    ? resolve(process.env.MIGRATIONS_PATH)
+    : undefined;
   return {
     ClientConfig: { user, password, host, port, database },
     MigrationConfig: { adapter, version, migrationsPath }
@@ -70,6 +84,13 @@ export const createConfig = (defaultVersion?: number): Config => {
 
 export const entrypoint = async (userConfig?: Partial<Config>) => {
   let config = createConfig();
+  config = {
+    ClientConfig: { ...config.ClientConfig, ...userConfig.ClientConfig },
+    MigrationConfig: {
+      ...config.MigrationConfig,
+      ...userConfig.MigrationConfig
+    }
+  };
   const migrationFiles = getMigrationFiles(config);
   if (!config.MigrationConfig.version) {
     Object.assign(config.MigrationConfig, {
@@ -78,13 +99,12 @@ export const entrypoint = async (userConfig?: Partial<Config>) => {
           .VersionTo
     });
   }
-  const finalConfig = { ...config, ...userConfig };
-  const adapter = adapters[finalConfig.MigrationConfig.adapter];
-  const client = await adapter.createClient(finalConfig.ClientConfig);
+  const adapter = adapters[config.MigrationConfig.adapter];
+  const client = await adapter.createClient(config.ClientConfig);
   await migrateDb(
     client,
     adapter,
-    finalConfig.MigrationConfig.version,
+    config.MigrationConfig.version,
     migrationFiles
   );
   await adapter.closeConnection(client);

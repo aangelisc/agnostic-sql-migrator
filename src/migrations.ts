@@ -33,7 +33,7 @@ export const getMigrationFiles = (config: Config): Migrations => {
       }
     })
     .filter(item => item !== undefined)
-    .reverse();
+    .sort((a, b) => (a.VersionTo > b.VersionTo ? -1 : 1));
   const RollForward: Migration[] = files
     .map(file => {
       const numbers = file.split(".")[0];
@@ -47,7 +47,8 @@ export const getMigrationFiles = (config: Config): Migrations => {
         };
       }
     })
-    .filter(item => item !== undefined);
+    .filter(item => item !== undefined)
+    .sort((a, b) => (a.VersionTo > b.VersionTo ? 1 : -1));
   return {
     RollBackward,
     RollForward
@@ -83,14 +84,20 @@ export const migrateDb = async (
   if (currentVersion < version) {
     console.log("Rolling forwards to version: ", version);
     const rollforward = migrations.RollForward.filter(
-      item => item.VersionFrom <= version && item.VersionTo >= currentVersion
+      item =>
+        item.VersionFrom <= version &&
+        item.VersionTo <= version &&
+        item.VersionTo > currentVersion
     );
     await executeMigrations(client, adapter, version, rollforward);
   }
   if (currentVersion > version) {
     console.log("Rolling backwards to version: ", version);
     const rollbackward = migrations.RollBackward.filter(
-      item => item.VersionFrom >= version && item.VersionTo <= currentVersion
+      item =>
+        item.VersionFrom >= version &&
+        item.VersionTo >= version &&
+        item.VersionTo < currentVersion
     );
     await executeMigrations(client, adapter, version, rollbackward);
   }

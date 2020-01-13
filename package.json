@@ -1,5 +1,5 @@
 {
-  "name": "agnostic-migrator",
+  "name": "@dogfood20/agnostic-sql-migrator",
   "version": "0.0.1",
   "description": "Database agnostic migrator tool for SQL databases",
   "main": "index.ts",
@@ -43,7 +43,7 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com:dogfood20/AgnosticMigrator.git"
+    "url": "git://github.com:dogfood20/agnostic-sql-migrator.git"
   },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"

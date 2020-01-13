@@ -41,6 +41,10 @@
       "node"
     ]
   },
+  "repository": {
+    "type": "git",
+    "url": "git://github.com:dogfood20/AgnosticMigrator.git"
+  },
   "publishConfig": {
     "registry": "https://npm.pkg.github.com/"
   }

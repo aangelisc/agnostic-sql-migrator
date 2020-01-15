@@ -106,7 +106,8 @@ export const entrypoint = async (userConfig?: Partial<Config>) => {
     client,
     adapter,
     config.MigrationConfig.version,
-    migrationFiles
+    migrationFiles,
+    config.MigrationConfig.adapter
   );
   await adapter.closeConnection(client);
 };

@@ -1,6 +1,6 @@
 {
   "name": "@dogfood20/agnostic-sql-migrator",
-  "version": "0.0.3",
+  "version": "0.0.4",
   "description": "Database agnostic migrator tool for SQL databases",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",

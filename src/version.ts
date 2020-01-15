@@ -1,13 +1,16 @@
-import { AdapterClients, AdapterClient } from "./config";
+import { AdapterClients, AdapterClient, Adapters } from "./config";
 
 export const Version = {
   exists: async (
     client: AdapterClients,
-    adapter: AdapterClient
+    adapter: AdapterClient,
+    adapterType: Adapters
   ): Promise<boolean> => {
+    const sqlServerQuery = `SELECT CASE WHEN EXISTS (SELECT * FROM INFORMATION_SCHEMA.TABLES WHERE TABLE_NAME = 'version') THEN 1 ELSE 0 END AS value`;
+    const normalQuery = `SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = 'version') AS value;`;
     const exists = await adapter.query(
       client,
-      "SELECT EXISTS(SELECT * FROM information_schema.tables WHERE table_name = 'version') as value;"
+      adapterType === "sqlserver" ? sqlServerQuery : normalQuery
     );
     return exists[0].value;
   },

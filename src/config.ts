@@ -3,6 +3,7 @@ import { getMigrationFiles, migrateDb } from "./migrations";
 import { adapters } from "./adapters";
 import { resolve } from "path";
 import { Connection } from "mysql2/promise";
+import { ConnectionPool } from "mssql";
 
 export interface ClientConfig {
   user: string;
@@ -23,14 +24,14 @@ export interface Config {
   MigrationConfig: MigrationConfig;
 }
 
-export type Adapters = "postgres" | "mysql" | undefined;
+export type Adapters = "postgres" | "mysql" | "sqlserver" | undefined;
 
-export type AdapterClients = Client | Connection;
+export type AdapterClients = Client | Connection | ConnectionPool;
 
 export interface AdapterClient {
   createClient: (config: ClientConfig) => Promise<AdapterClients>;
   query: (client: AdapterClients, query: string) => any;
-  closeConnection: (client: Client | Connection) => Promise<void>;
+  closeConnection: (client: AdapterClients) => Promise<void>;
 }
 
 export const createConfig = (defaultVersion?: number): Config => {
@@ -105,7 +106,8 @@ export const entrypoint = async (userConfig?: Partial<Config>) => {
     client,
     adapter,
     config.MigrationConfig.version,
-    migrationFiles
+    migrationFiles,
+    config.MigrationConfig.adapter
   );
   await adapter.closeConnection(client);
 };

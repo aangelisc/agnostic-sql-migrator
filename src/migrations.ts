@@ -1,7 +1,8 @@
 import { readdirSync, readFileSync } from "fs";
-import { AdapterClients, AdapterClient, Config } from "./config";
+import { AdapterClients, AdapterClient, Config, Adapters } from "./config";
 import { Version } from "./version";
 import * as path from "path";
+import { Transaction, ConnectionPool, Request } from "mssql";
 
 export interface Migration {
   Path: string;
@@ -69,9 +70,10 @@ export const migrateDb = async (
   client: AdapterClients,
   adapter: AdapterClient,
   version: number,
-  migrations: Migrations
+  migrations: Migrations,
+  adapterType: Adapters
 ) => {
-  const versionExists = await Version.exists(client, adapter);
+  const versionExists = await Version.exists(client, adapter, adapterType);
   if (!versionExists) {
     await Version.create(client, adapter);
   }
@@ -109,31 +111,34 @@ export const executeMigrations = async (
   version: number,
   migrations: Migration[]
 ) => {
-  await adapter.query(client, "BEGIN;");
-  let migrationsSuccessful = true;
+  let migrationsSuccessful: boolean;
   if (migrations.length === 0) {
+    return;
   }
   for (let i = 0; i < migrations.length; i++) {
+    if (migrationsSuccessful === false) break;
     const migration = migrations[i];
     const query = readFileSync(migration.Path).toString();
     console.log("Executing migration: ", query);
     try {
       await adapter.query(client, query);
+      migrationsSuccessful = true;
+      await Version.update(client, adapter, migration.VersionTo);
     } catch (err) {
-      console.log(
-        `Failed to migrate to version ${migration.VersionTo} with error: ${err}`
-      );
-      await adapter.query(client, "ROLLBACK;");
       migrationsSuccessful = false;
+      console.log(`Failed to execute migration with error: ${err}`);
       break;
     }
   }
   if (migrationsSuccessful) {
-    await adapter.query(client, "COMMIT");
-    await adapter.query(client, `UPDATE version SET value=${version}`);
-    console.log(
-      "Migrations successfully completed. DB is now on version: ",
-      version
-    );
+    try {
+      await Version.update(client, adapter, version);
+      console.log(
+        "Migrations successfully completed. DB is now on version: ",
+        version
+      );
+    } catch (err) {
+      console.log(`Could not update version value with error: ${err}`);
+    }
   }
 };

@@ -3,38 +3,37 @@ import { adapters } from "../src/adapters";
 import { Version } from "../src/version";
 import { Config, AdapterClient } from "../src/config";
 import { getMigrationFiles, migrateDb } from "../src/migrations";
+import { ConnectionPool } from "mssql";
 
 let config: Config;
 let container: Containers.StartedTestContainer;
 let adapter: AdapterClient;
 const logSpy = jest.spyOn(console, "log");
 jest.setTimeout(100000);
-describe("Testing MySQL functionality", () => {
+describe("Testing MS SQL Server functionality", () => {
   beforeAll(async () => {
     const dbConfig = {
-      MYSQL_PASSWORD: "password",
-      MYSQL_DB: "testdb",
-      MYSQL_USER: "ms"
+      SA_PASSWORD: "1Secure*Password1",
+      ACCEPT_EULA: "Y"
     };
-    container = await new Containers.GenericContainer("mysql")
-      .withExposedPorts(3306)
-      .withEnv("MYSQL_ROOT_PASSWORD", "rootpw")
-      .withEnv("MYSQL_PASSWORD", dbConfig.MYSQL_PASSWORD)
-      .withEnv("MYSQL_USER", dbConfig.MYSQL_USER)
-      .withEnv("MYSQL_DATABASE", "testdb")
-      .withEnv("MYSQL_ROOT_HOST", "%")
+    container = await new Containers.GenericContainer(
+      "mcr.microsoft.com/mssql/server"
+    )
+      .withExposedPorts(1433)
+      .withEnv("SA_PASSWORD", dbConfig.SA_PASSWORD)
+      .withEnv("ACCEPT_EULA", dbConfig.ACCEPT_EULA)
       .start();
     config = {
       ClientConfig: {
-        user: "ms",
-        password: "password",
+        user: "sa",
+        password: dbConfig.SA_PASSWORD,
         host: container.getContainerIpAddress(),
-        port: container.getMappedPort(3306),
-        database: "testdb"
+        port: container.getMappedPort(1433),
+        database: "tempdb"
       },
       MigrationConfig: {
-        adapter: "mysql",
-        migrationsPath: `${__dirname}/mock_mysql_migrations`
+        adapter: "sqlserver",
+        migrationsPath: `${__dirname}/mock_mssql_migrations`
       }
     };
     adapter = adapters[config.MigrationConfig.adapter];
@@ -42,11 +41,11 @@ describe("Testing MySQL functionality", () => {
   afterAll(async () => {
     await container.stop();
   });
-  it("Will successfully create and close connection to the MySQL db", async () => {
+  it("Will successfully create and close connection to the MS SQL db", async () => {
     const client = await adapter.createClient(config.ClientConfig);
-    expect(logSpy).toHaveBeenCalledWith("Successfully connected to MySQL DB");
+    expect(logSpy).toHaveBeenCalledWith("Successfully connected to MS SQL DB");
     await adapter.closeConnection(client);
-    expect(logSpy).toHaveBeenCalledWith("Connection to MySQL DB closed");
+    expect(logSpy).toHaveBeenCalledWith("Connection to MS SQL DB closed");
     expect(logSpy).toHaveBeenCalledTimes(2);
   });
 
@@ -102,6 +101,7 @@ describe("Testing MySQL functionality", () => {
     const version = await Version.get(client, adapter);
     expect(version).toEqual(latest);
     await adapter.closeConnection(client);
+    console.log({ adapter });
   });
 
   it("Will not carry out migrations if db is at latest version", async () => {

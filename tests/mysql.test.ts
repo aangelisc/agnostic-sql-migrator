@@ -52,14 +52,22 @@ describe("Testing MySQL functionality", () => {
 
   it("Will check if the version exists - on initial creation expect this to be false", async () => {
     const client = await adapter.createClient(config.ClientConfig);
-    const exists = await Version.exists(client, adapter);
+    const exists = await Version.exists(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(exists).toBeFalsy();
     await adapter.closeConnection(client);
   });
 
   it("Will initialise db version at 1 if no version table exists", async () => {
     const client = await adapter.createClient(config.ClientConfig);
-    const exists = await Version.exists(client, adapter);
+    const exists = await Version.exists(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(exists).toBeFalsy();
     await Version.create(client, adapter);
     expect(logSpy).toHaveBeenCalledWith(
@@ -84,7 +92,8 @@ describe("Testing MySQL functionality", () => {
       client,
       adapter,
       config.MigrationConfig.version,
-      migrationFiles
+      migrationFiles,
+      config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith(
       "Rolling forwards to version: ",
@@ -108,7 +117,8 @@ describe("Testing MySQL functionality", () => {
       client,
       adapter,
       config.MigrationConfig.version,
-      migrationFiles
+      migrationFiles,
+      config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith(
       "DB is already at the specified version - no migrations to carry out."
@@ -128,7 +138,8 @@ describe("Testing MySQL functionality", () => {
       client,
       adapter,
       config.MigrationConfig.version,
-      migrationFiles
+      migrationFiles,
+      config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith("Rolling backwards to version: ", 1);
     const version = await Version.get(client, adapter);
@@ -144,7 +155,8 @@ describe("Testing MySQL functionality", () => {
       client,
       adapter,
       config.MigrationConfig.version,
-      migrationFiles
+      migrationFiles,
+      config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith("Rolling forwards to version: ", 3);
     const version = await Version.get(client, adapter);

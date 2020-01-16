@@ -32,6 +32,7 @@
   "files": [
     "dist"
   ],
+  "bin": "./dist/cli.js",
   "jest": {
     "preset": "ts-jest",
     "testEnvironment": "node",

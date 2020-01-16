@@ -68,11 +68,15 @@ describe("Testing MS SQL Server functionality", () => {
       config.MigrationConfig.adapter
     );
     expect(exists).toBeFalsy();
-    await Version.create(client, adapter);
+    await Version.create(client, adapter, config.MigrationConfig.adapter);
     expect(logSpy).toHaveBeenCalledWith(
       "New DB - Creating version information"
     );
-    const version = await Version.get(client, adapter);
+    const version = await Version.get(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(version).toEqual(1);
     expect(logSpy).toHaveBeenLastCalledWith("Current DB Version is: ", 1);
     await adapter.closeConnection(client);
@@ -98,7 +102,11 @@ describe("Testing MS SQL Server functionality", () => {
       "Rolling forwards to version: ",
       latest
     );
-    const version = await Version.get(client, adapter);
+    const version = await Version.get(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(version).toEqual(latest);
     await adapter.closeConnection(client);
     console.log({ adapter });
@@ -123,7 +131,11 @@ describe("Testing MS SQL Server functionality", () => {
     expect(logSpy).toHaveBeenCalledWith(
       "DB is already at the specified version - no migrations to carry out."
     );
-    const version = await Version.get(client, adapter);
+    const version = await Version.get(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(version).toEqual(latest);
     await adapter.closeConnection(client);
   });
@@ -142,7 +154,11 @@ describe("Testing MS SQL Server functionality", () => {
       config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith("Rolling backwards to version: ", 1);
-    const version = await Version.get(client, adapter);
+    const version = await Version.get(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(version).toEqual(1);
     await adapter.closeConnection(client);
   });
@@ -159,7 +175,11 @@ describe("Testing MS SQL Server functionality", () => {
       config.MigrationConfig.adapter
     );
     expect(logSpy).toHaveBeenCalledWith("Rolling forwards to version: ", 3);
-    const version = await Version.get(client, adapter);
+    const version = await Version.get(
+      client,
+      adapter,
+      config.MigrationConfig.adapter
+    );
     expect(version).toEqual(3);
     await adapter.closeConnection(client);
   });

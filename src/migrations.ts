@@ -75,9 +75,9 @@ export const migrateDb = async (
 ) => {
   const versionExists = await Version.exists(client, adapter, adapterType);
   if (!versionExists) {
-    await Version.create(client, adapter);
+    await Version.create(client, adapter, adapterType);
   }
-  let currentVersion = await Version.get(client, adapter);
+  let currentVersion = await Version.get(client, adapter, adapterType);
   if (currentVersion === version) {
     console.log(
       "DB is already at the specified version - no migrations to carry out."
@@ -91,7 +91,7 @@ export const migrateDb = async (
         item.VersionTo <= version &&
         item.VersionTo > currentVersion
     );
-    await executeMigrations(client, adapter, version, rollforward);
+    await executeMigrations(client, adapter, version, rollforward, adapterType);
   }
   if (currentVersion > version) {
     console.log("Rolling backwards to version: ", version);
@@ -101,7 +101,13 @@ export const migrateDb = async (
         item.VersionTo >= version &&
         item.VersionTo < currentVersion
     );
-    await executeMigrations(client, adapter, version, rollbackward);
+    await executeMigrations(
+      client,
+      adapter,
+      version,
+      rollbackward,
+      adapterType
+    );
   }
 };
 
@@ -109,7 +115,8 @@ export const executeMigrations = async (
   client: AdapterClients,
   adapter: AdapterClient,
   version: number,
-  migrations: Migration[]
+  migrations: Migration[],
+  adapterType: Adapters
 ) => {
   let migrationsSuccessful: boolean;
   if (migrations.length === 0) {
@@ -123,7 +130,7 @@ export const executeMigrations = async (
     try {
       await adapter.query(client, query);
       migrationsSuccessful = true;
-      await Version.update(client, adapter, migration.VersionTo);
+      await Version.update(client, adapter, migration.VersionTo, adapterType);
     } catch (err) {
       migrationsSuccessful = false;
       console.log(`Failed to execute migration with error: ${err}`);
@@ -132,7 +139,7 @@ export const executeMigrations = async (
   }
   if (migrationsSuccessful) {
     try {
-      await Version.update(client, adapter, version);
+      await Version.update(client, adapter, version, adapterType);
       console.log(
         "Migrations successfully completed. DB is now on version: ",
         version

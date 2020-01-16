@@ -3,7 +3,10 @@ import { Connection, createConnection } from "mysql2/promise";
 
 const createClient = async (config: ClientConfig): Promise<Connection> => {
   try {
-    const client = await createConnection(config);
+    const client = await createConnection({
+      ...config,
+      multipleStatements: true
+    });
     console.log("Successfully connected to MySQL DB");
     return client;
   } catch (err) {

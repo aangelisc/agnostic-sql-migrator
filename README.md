@@ -16,7 +16,7 @@ This is then followed by a command line configuration variable.
 
 Then finally an environment variable.
 
-Possible command line arguments are:
+Possible command line arguments/environment variables are:
 
 - ADAPTER - the type of SQL database you are targeting accepting values `postgres`, `sqlserver`, or `mysql` (defined by the type Adapters)
 - USER - the user on the database to login as
@@ -94,3 +94,10 @@ const migrate = async () => {
 };
 
 ```
+
+To call from command line you can use the following command:
+
+`node_modules/.bin/agnostic-sql-migrator --VERSION=YOUR_VERSION` for example.
+
+You can specify as many of the arguments described above as you like, but all the required arguments have to be specified either here
+in the command line, or as part of your environment variables, otherwise the command will fail.

@@ -83,7 +83,7 @@ export const createConfig = (defaultVersion?: number): Config => {
   };
 };
 
-export const entrypoint = async (userConfig?: Partial<Config>) => {
+export const migrator = async (userConfig?: Partial<Config>) => {
   let config = createConfig();
   config = {
     ClientConfig: { ...config.ClientConfig, ...userConfig.ClientConfig },

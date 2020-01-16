@@ -85,13 +85,18 @@ export const createConfig = (defaultVersion?: number): Config => {
 
 export const migrator = async (userConfig?: Partial<Config>) => {
   let config = createConfig();
-  config = {
-    ClientConfig: { ...config.ClientConfig, ...userConfig.ClientConfig },
-    MigrationConfig: {
-      ...config.MigrationConfig,
-      ...userConfig.MigrationConfig
-    }
-  };
+  config = userConfig
+    ? {
+        ClientConfig: { ...config.ClientConfig, ...userConfig.ClientConfig },
+        MigrationConfig: {
+          ...config.MigrationConfig,
+          ...userConfig.MigrationConfig
+        }
+      }
+    : {
+        ClientConfig: config.ClientConfig,
+        MigrationConfig: config.MigrationConfig
+      };
   const migrationFiles = getMigrationFiles(config);
   if (!config.MigrationConfig.version) {
     Object.assign(config.MigrationConfig, {

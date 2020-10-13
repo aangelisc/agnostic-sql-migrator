@@ -14,7 +14,7 @@ describe("Testing Postgres functionality", () => {
     const dbConfig = {
       POSTGRES_PASSWORD: "password",
       POSTGRES_DB: "testdb",
-      POSTGRES_USER: "postgres"
+      POSTGRES_USER: "postgres",
     };
     container = await new Containers.GenericContainer("postgres")
       .withExposedPorts(5432)
@@ -28,12 +28,12 @@ describe("Testing Postgres functionality", () => {
         password: "password",
         host: container.getContainerIpAddress(),
         port: container.getMappedPort(5432),
-        database: "testdb"
+        database: "testdb",
       },
       MigrationConfig: {
         adapter: "postgres",
-        migrationsPath: `${__dirname}/mock_psql_migrations`
-      }
+        migrationsPath: `${__dirname}/mock_psql_migrations`,
+      },
     };
     adapter = adapters[config.MigrationConfig.adapter];
   });
@@ -89,7 +89,7 @@ describe("Testing Postgres functionality", () => {
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
     Object.assign(config.MigrationConfig, {
-      version: latest
+      version: latest,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(
@@ -118,7 +118,7 @@ describe("Testing Postgres functionality", () => {
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
     Object.assign(config.MigrationConfig, {
-      version: latest
+      version: latest,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(
@@ -143,7 +143,7 @@ describe("Testing Postgres functionality", () => {
   it("Will rollback the db to a specified version", async () => {
     const migrationFiles = getMigrationFiles(config);
     Object.assign(config.MigrationConfig, {
-      version: 1
+      version: 1,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(

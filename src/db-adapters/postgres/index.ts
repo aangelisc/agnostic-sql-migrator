@@ -1,4 +1,4 @@
-import { Client, QueryResult, QueryResultBase } from "pg";
+import { Client } from "pg";
 import { AdapterClient, ClientConfig } from "../../config";
 
 const createClient = async (config: ClientConfig): Promise<Client> => {
@@ -29,5 +29,5 @@ const closeConnection = async (client: Client): Promise<void> => {
 export const postgres: AdapterClient = {
   createClient,
   query,
-  closeConnection
+  closeConnection,
 };

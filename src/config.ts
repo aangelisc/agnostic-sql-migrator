@@ -37,7 +37,7 @@ export interface AdapterClient {
 export const createConfig = (defaultVersion?: number): Config => {
   const args = process.argv.slice(2);
   const argMap = new Map<string, string>();
-  args.map(arg => {
+  args.map((arg) => {
     const keyVal = arg.split("=");
     argMap.set(keyVal[0], keyVal[1]);
   });
@@ -79,7 +79,7 @@ export const createConfig = (defaultVersion?: number): Config => {
     : undefined;
   return {
     ClientConfig: { user, password, host, port, database },
-    MigrationConfig: { adapter, version, migrationsPath }
+    MigrationConfig: { adapter, version, migrationsPath },
   };
 };
 
@@ -90,19 +90,19 @@ export const migrator = async (userConfig?: Partial<Config>) => {
         ClientConfig: { ...config.ClientConfig, ...userConfig.ClientConfig },
         MigrationConfig: {
           ...config.MigrationConfig,
-          ...userConfig.MigrationConfig
-        }
+          ...userConfig.MigrationConfig,
+        },
       }
     : {
         ClientConfig: config.ClientConfig,
-        MigrationConfig: config.MigrationConfig
+        MigrationConfig: config.MigrationConfig,
       };
   const migrationFiles = getMigrationFiles(config);
   if (!config.MigrationConfig.version) {
     Object.assign(config.MigrationConfig, {
       version:
         migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
-          .VersionTo
+          .VersionTo,
     });
   }
   const adapter = adapters[config.MigrationConfig.adapter];

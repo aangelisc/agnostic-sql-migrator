@@ -1,4 +1,4 @@
-import { ConnectionPool, IResult } from "mssql";
+import { ConnectionPool } from "mssql";
 import { AdapterClient, ClientConfig } from "../../config";
 
 const createClient = async (config: ClientConfig): Promise<ConnectionPool> => {
@@ -39,5 +39,5 @@ const closeConnection = async (
 export const sqlserver: AdapterClient = {
   createClient,
   query,
-  closeConnection
+  closeConnection,
 };

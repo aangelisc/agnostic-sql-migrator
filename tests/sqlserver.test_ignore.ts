@@ -1,9 +1,8 @@
 import * as Containers from "testcontainers";
-import { adapters } from "../src/adapters";
-import { Version } from "../src/version";
-import { Config, AdapterClient } from "../src/config";
-import { getMigrationFiles, migrateDb } from "../src/migrations";
-import { ConnectionPool } from "mssql";
+import { adapters } from "./src/adapters";
+import { Version } from "./src/version";
+import { Config, AdapterClient } from "./src/config";
+import { getMigrationFiles, migrateDb } from "./src/migrations";
 
 let config: Config;
 let container: Containers.StartedTestContainer;
@@ -13,28 +12,29 @@ jest.setTimeout(100000);
 describe("Testing MS SQL Server functionality", () => {
   beforeAll(async () => {
     const dbConfig = {
-      SA_PASSWORD: "1Secure*Password1",
-      ACCEPT_EULA: "Y"
+      SA_PASSWORD: "1Secure-Password!",
+      ACCEPT_EULA: "Y",
     };
     container = await new Containers.GenericContainer(
       "mcr.microsoft.com/mssql/server"
     )
       .withExposedPorts(1433)
-      .withEnv("SA_PASSWORD", dbConfig.SA_PASSWORD)
+      .withEnv("SA_PASSWORD", `${dbConfig.SA_PASSWORD}`)
       .withEnv("ACCEPT_EULA", dbConfig.ACCEPT_EULA)
       .start();
+    setTimeout(null, 6000);
     config = {
       ClientConfig: {
         user: "sa",
         password: dbConfig.SA_PASSWORD,
         host: container.getContainerIpAddress(),
         port: container.getMappedPort(1433),
-        database: "tempdb"
+        database: "tempdb",
       },
       MigrationConfig: {
         adapter: "sqlserver",
-        migrationsPath: `${__dirname}/mock_mssql_migrations`
-      }
+        migrationsPath: `${__dirname}/mock_mssql_migrations`,
+      },
     };
     adapter = adapters[config.MigrationConfig.adapter];
   });
@@ -88,7 +88,7 @@ describe("Testing MS SQL Server functionality", () => {
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
     Object.assign(config.MigrationConfig, {
-      version: latest
+      version: latest,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(
@@ -118,7 +118,7 @@ describe("Testing MS SQL Server functionality", () => {
       migrationFiles.RollForward[migrationFiles.RollForward.length - 1]
         .VersionTo;
     Object.assign(config.MigrationConfig, {
-      version: latest
+      version: latest,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(
@@ -143,7 +143,7 @@ describe("Testing MS SQL Server functionality", () => {
   it("Will rollback the db to a specified version", async () => {
     const migrationFiles = getMigrationFiles(config);
     Object.assign(config.MigrationConfig, {
-      version: 1
+      version: 1,
     });
     const client = await adapter.createClient(config.ClientConfig);
     await migrateDb(

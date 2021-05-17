@@ -3,7 +3,10 @@ import { AdapterClient, ClientConfig } from '../../config';
 
 const createClient = async (config: ClientConfig): Promise<ConnectionPool> => {
   try {
-    const updatedConfig = Object.assign(config, { server: config.host });
+    const updatedConfig = Object.assign(config, {
+      server: config.host,
+      trustServerCertificate: true,
+    });
     const connectionPool = new ConnectionPool(updatedConfig);
     await connectionPool.connect();
     console.log('Successfully connected to MS SQL DB');

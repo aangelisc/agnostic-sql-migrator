@@ -11,27 +11,31 @@ const logSpy = jest.spyOn(console, 'log');
 jest.setTimeout(100000);
 beforeAll(async () => {
   const dbConfig = {
-    POSTGRES_PASSWORD: 'password',
-    POSTGRES_DB: 'testdb',
-    POSTGRES_USER: 'postgres',
+    MSSQL_SA_PASSWORD: '1Secure*Password1',
+    ACCEPT_EULA: 'Y',
   };
-  container = await new Containers.GenericContainer('postgres')
-    .withExposedPorts(5432)
-    .withEnv('POSTGRES_PASSWORD', dbConfig.POSTGRES_PASSWORD)
-    .withEnv('POSTGRES_USER', dbConfig.POSTGRES_USER)
-    .withEnv('POSTGRES_DB', 'testdb')
+  const dbName = 'tempdb';
+  container = await new Containers.GenericContainer(
+    'mcr.microsoft.com/mssql/server:2019-latest'
+  )
+    .withExposedPorts(1433)
+    .withEnv('MSSQL_SA_PASSWORD', `${dbConfig.MSSQL_SA_PASSWORD}`)
+    .withEnv('ACCEPT_EULA', dbConfig.ACCEPT_EULA)
+    //SQL Server is quite slow in starting up - TODO: find a better implemenntation for checking if the DB is ready..
+    .withWaitStrategy(Containers.Wait.forLogMessage(/The tempdb database has/))
     .start();
+
   config = {
     ClientConfig: {
-      user: 'postgres',
-      password: 'password',
+      user: 'sa',
+      password: dbConfig.MSSQL_SA_PASSWORD,
       host: 'localhost',
-      port: container.getMappedPort(5432),
-      database: 'testdb',
+      port: container.getMappedPort(1433),
+      database: dbName,
     },
     MigrationConfig: {
-      adapter: 'postgres',
-      migrationsPath: `${__dirname}/mock_psql_migrations`,
+      adapter: 'sqlserver',
+      migrationsPath: `${__dirname}/mock_mssql_migrations`,
     },
   };
   adapter = adapters[config.MigrationConfig.adapter];
@@ -39,11 +43,11 @@ beforeAll(async () => {
 afterAll(async () => {
   await container.stop();
 });
-it('Will successfully create and close connection to the Postgres db', async () => {
+it('Will successfully create and close connection to the MS SQL db', async () => {
   const client = await adapter.createClient(config.ClientConfig);
-  expect(logSpy).toHaveBeenCalledWith('Successfully connected to Postgres DB');
+  expect(logSpy).toHaveBeenCalledWith('Successfully connected to MS SQL DB');
   await adapter.closeConnection(client);
-  expect(logSpy).toHaveBeenCalledWith('Connection to Postgres DB closed');
+  expect(logSpy).toHaveBeenCalledWith('Connection to MS SQL DB closed');
   expect(logSpy).toHaveBeenCalledTimes(2);
 });
 

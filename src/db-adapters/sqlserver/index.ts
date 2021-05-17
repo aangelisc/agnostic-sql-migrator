@@ -1,12 +1,12 @@
-import { ConnectionPool } from "mssql";
-import { AdapterClient, ClientConfig } from "../../config";
+import { ConnectionPool } from 'mssql';
+import { AdapterClient, ClientConfig } from '../../config';
 
 const createClient = async (config: ClientConfig): Promise<ConnectionPool> => {
   try {
     const updatedConfig = Object.assign(config, { server: config.host });
     const connectionPool = new ConnectionPool(updatedConfig);
     await connectionPool.connect();
-    console.log("Successfully connected to MS SQL DB");
+    console.log('Successfully connected to MS SQL DB');
     return connectionPool;
   } catch (err) {
     throw err;
@@ -30,7 +30,7 @@ const closeConnection = async (
 ): Promise<void> => {
   try {
     await connectionPool.close();
-    console.log("Connection to MS SQL DB closed");
+    console.log('Connection to MS SQL DB closed');
   } catch (err) {
     throw err;
   }

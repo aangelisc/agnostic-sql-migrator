@@ -51,9 +51,9 @@
   },
   "repository": {
     "type": "git",
-    "url": "git://github.com:dogfood20/agnostic-sql-migrator.git"
+    "url": "git://github.com:aangelisc/agnostic-sql-migrator.git"
   },
   "publishConfig": {
-    "registry": "https://npm.pkg.github.com/"
+    "registry": "https://registry.npmjs.org/"
   }
 }

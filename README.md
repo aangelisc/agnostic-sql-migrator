@@ -35,23 +35,13 @@ versions e.g. `4-1.sql`.
 
 ## Installation
 
-Add a personal access token to your `.npmrc` in order to be able to access the `@dogfood20` GitHub packages registry.
-If you don't know how to do this click [here](https://help.github.com/en/github/authenticating-to-github/creating-a-personal-access-token-for-the-command-line).
-
-Your `.npmrc` should then include the following:
-
-```
-//npm.pkg.github.com/:_authToken=<YOUR_ACCESS_TOKEN>
-@dogfood20:registry=https://npm.pkg.github.com
-```
-
 Install the tool via `npm` using:
 
-`npm install @dogfood20/agnostic-sql-migrator`
+`npm install agnostic-sql-migrator`
 
 or if you're using `yarn`:
 
-`yarn add @dogfood20/agnostic-sql-migrator`
+`yarn add agnostic-sql-migrator`
 
 ## Usage
 
@@ -60,7 +50,7 @@ Import and use the entrypoint using the following:
 If your configuration variables are already defined in your environment
 
 ```
-import {migrator} from '@dogfood20/agnostic-sql-migrator';
+import {migrator} from 'agnostic-sql-migrator';
 
 const migrateDb = async () => {
     await migrator();
@@ -70,7 +60,7 @@ const migrateDb = async () => {
 Otherwise you can call:
 
 ```
-import {migrator, ClientConfig, MigrationConfig} fromm '@dogfood20/agnostic-sql-migrator';
+import {migrator, ClientConfig, MigrationConfig} fromm 'agnostic-sql-migrator';
 import {resolve} from 'path';
 
 const migrationsPath = resolve(PATH_TO_MIGRATIONS);

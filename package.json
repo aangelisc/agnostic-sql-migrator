@@ -4,7 +4,7 @@
   "description": "Database agnostic migrator tool for SQL databases",
   "main": "dist/index.js",
   "types": "dist/index.d.ts",
-  "author": "aangelisc <andreas.christou@telefonica.com>",
+  "author": "aangelisc <aangelisc@gmail.com>",
   "license": "MIT",
   "private": false,
   "devDependencies": {

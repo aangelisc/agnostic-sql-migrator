@@ -23,6 +23,7 @@ beforeAll(async () => {
     .withEnv('ACCEPT_EULA', dbConfig.ACCEPT_EULA)
     //SQL Server is quite slow in starting up - TODO: find a better implemenntation for checking if the DB is ready..
     .withWaitStrategy(Containers.Wait.forLogMessage(/The tempdb database has/))
+    .withStartupTimeout(10000)
     .start();
 
   config = {

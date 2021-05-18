@@ -55,5 +55,20 @@
   },
   "publishConfig": {
     "registry": "https://registry.npmjs.org/"
-  }
+  },
+  "keywords": [
+    "sql",
+    "psql",
+    "postgres",
+    "mssql",
+    "sql server",
+    "mysql",
+    "migrator",
+    "db",
+    "database",
+    "migration",
+    "migrate",
+    "pg",
+    "typescript"
+  ]
 }

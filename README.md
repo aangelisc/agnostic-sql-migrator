@@ -43,6 +43,14 @@ or if you're using `yarn`:
 
 `yarn add agnostic-sql-migrator`
 
+You will also need to install the relevant DB package:
+
+`MySQL`: `npm install mysql2` or `yarn add mysql2`
+
+`Postgres`: `npm install pg` or `yarn add pg`
+
+`SQL Server`: `npm install mssql` or `yarn add mssql`
+
 ## Usage
 
 Import and use the entrypoint using the following:

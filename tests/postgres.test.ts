@@ -34,7 +34,7 @@ beforeAll(async () => {
       migrationsPath: `${__dirname}/mock_psql_migrations`,
     },
   };
-  adapter = adapters[config.MigrationConfig.adapter];
+  adapter = await adapters(config.MigrationConfig.adapter);
 });
 afterAll(async () => {
   await container.stop();

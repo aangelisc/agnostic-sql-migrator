@@ -9,5 +9,5 @@
     "declaration": true
   },
   "include": ["src"],
-  "exclude": ["src/tests", "lib", "scripts"]
+  "exclude": ["src/tests", "node_modules/**"]
 }

@@ -39,8 +39,8 @@ const closeConnection = async (
   }
 };
 
-export const sqlserver: AdapterClient = {
+export default {
   createClient,
   query,
   closeConnection,
-};
+} as AdapterClient;

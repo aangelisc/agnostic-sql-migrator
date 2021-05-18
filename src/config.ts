@@ -105,7 +105,7 @@ export const migrator = async (userConfig?: Partial<Config>) => {
           .VersionTo,
     });
   }
-  const adapter = adapters[config.MigrationConfig.adapter];
+  const adapter = await adapters(config.MigrationConfig.adapter);
   const client = await adapter.createClient(config.ClientConfig);
   await migrateDb(
     client,

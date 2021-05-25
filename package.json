@@ -10,7 +10,6 @@
   "devDependencies": {
     "@types/jest": "^26.0.23",
     "@types/mssql": "^6.0.8",
-    "@types/mysql2": "types/mysql2",
     "@types/node": "^15.3.0",
     "@types/pg": "^7.14.11",
     "jest": "^26.6.3",

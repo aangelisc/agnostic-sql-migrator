@@ -107,12 +107,15 @@ export const migrator = async (userConfig?: Partial<Config>) => {
   }
   const adapter = await adapters(config.MigrationConfig.adapter);
   const client = await adapter.createClient(config.ClientConfig);
-  await migrateDb(
-    client,
-    adapter,
-    config.MigrationConfig.version,
-    migrationFiles,
-    config.MigrationConfig.adapter
-  );
-  await adapter.closeConnection(client);
+  try {
+    await migrateDb(
+      client,
+      adapter,
+      config.MigrationConfig.version,
+      migrationFiles,
+      config.MigrationConfig.adapter
+    );
+  } finally {
+    await adapter.closeConnection(client);
+  }
 };

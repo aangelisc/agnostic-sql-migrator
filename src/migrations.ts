@@ -1,8 +1,8 @@
-import { readdirSync, readFileSync } from "fs";
-import { AdapterClients, AdapterClient, Config, Adapters } from "./config";
-import { Version } from "./version";
-import * as path from "path";
-import { Transaction, ConnectionPool, Request } from "mssql";
+import { readdirSync, readFileSync } from 'fs';
+import { AdapterClients, AdapterClient, Config, Adapters } from './config';
+import { Version } from './version';
+import * as path from 'path';
+import { Transaction, ConnectionPool, Request } from 'mssql';
 
 export interface Migration {
   Path: string;
@@ -18,41 +18,41 @@ export interface Migrations {
 export const getMigrationFiles = (config: Config): Migrations => {
   const files = readdirSync(config.MigrationConfig.migrationsPath);
   if (files.length === 0) {
-    throw new Error("No migrations found - check migrations folder");
+    throw new Error('No migrations found - check migrations folder');
   }
   const RollBackward: Migration[] = files
-    .map(file => {
-      const numbers = file.split(".")[0];
-      const number1 = Number.parseInt(numbers.split("-")[0]);
-      const number2 = Number.parseInt(numbers.split("-")[1]);
+    .map((file) => {
+      const numbers = file.split('.')[0];
+      const number1 = Number.parseInt(numbers.split('-')[0]);
+      const number2 = Number.parseInt(numbers.split('-')[1]);
       if (number1 > number2) {
         return {
           Path: path.join(config.MigrationConfig.migrationsPath, file),
           VersionTo: number2,
-          VersionFrom: number1
+          VersionFrom: number1,
         };
       }
     })
-    .filter(item => item !== undefined)
+    .filter((item) => item !== undefined)
     .sort((a, b) => (a.VersionTo > b.VersionTo ? -1 : 1));
   const RollForward: Migration[] = files
-    .map(file => {
-      const numbers = file.split(".")[0];
-      const number1 = Number.parseInt(numbers.split("-")[0]);
-      const number2 = Number.parseInt(numbers.split("-")[1]);
+    .map((file) => {
+      const numbers = file.split('.')[0];
+      const number1 = Number.parseInt(numbers.split('-')[0]);
+      const number2 = Number.parseInt(numbers.split('-')[1]);
       if (number1 < number2) {
         return {
           Path: path.join(config.MigrationConfig.migrationsPath, file),
           VersionTo: number2,
-          VersionFrom: number1
+          VersionFrom: number1,
         };
       }
     })
-    .filter(item => item !== undefined)
+    .filter((item) => item !== undefined)
     .sort((a, b) => (a.VersionTo > b.VersionTo ? 1 : -1));
   return {
     RollBackward,
-    RollForward
+    RollForward,
   };
 };
 
@@ -80,13 +80,13 @@ export const migrateDb = async (
   let currentVersion = await Version.get(client, adapter, adapterType);
   if (currentVersion === version) {
     console.log(
-      "DB is already at the specified version - no migrations to carry out."
+      'DB is already at the specified version - no migrations to carry out.'
     );
   }
   if (currentVersion < version) {
-    console.log("Rolling forwards to version: ", version);
+    console.log('Rolling forwards to version: ', version);
     const rollforward = migrations.RollForward.filter(
-      item =>
+      (item) =>
         item.VersionFrom <= version &&
         item.VersionTo <= version &&
         item.VersionTo > currentVersion
@@ -94,9 +94,9 @@ export const migrateDb = async (
     await executeMigrations(client, adapter, version, rollforward, adapterType);
   }
   if (currentVersion > version) {
-    console.log("Rolling backwards to version: ", version);
+    console.log('Rolling backwards to version: ', version);
     const rollbackward = migrations.RollBackward.filter(
-      item =>
+      (item) =>
         item.VersionFrom >= version &&
         item.VersionTo >= version &&
         item.VersionTo < currentVersion
@@ -118,34 +118,22 @@ export const executeMigrations = async (
   migrations: Migration[],
   adapterType: Adapters
 ) => {
-  let migrationsSuccessful: boolean;
   if (migrations.length === 0) {
     return;
   }
   for (let i = 0; i < migrations.length; i++) {
-    if (migrationsSuccessful === false) break;
     const migration = migrations[i];
     const query = readFileSync(migration.Path).toString();
-    console.log("Executing migration: ", query);
+    console.log('Executing migration: ', query);
     try {
       await adapter.query(client, query);
-      migrationsSuccessful = true;
       await Version.update(client, adapter, migration.VersionTo, adapterType);
     } catch (err) {
-      migrationsSuccessful = false;
-      console.log(`Failed to execute migration with error: ${err}`);
-      break;
+      throw new Error(`Failed to execute migration with error: ${err}`);
     }
   }
-  if (migrationsSuccessful) {
-    try {
-      await Version.update(client, adapter, version, adapterType);
-      console.log(
-        "Migrations successfully completed. DB is now on version: ",
-        version
-      );
-    } catch (err) {
-      console.log(`Could not update version value with error: ${err}`);
-    }
-  }
+  console.log(
+    'Migrations successfully completed. DB is now on version: ',
+    version
+  );
 };
